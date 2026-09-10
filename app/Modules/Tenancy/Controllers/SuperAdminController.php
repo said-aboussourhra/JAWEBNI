@@ -5,7 +5,6 @@ namespace App\Modules\Tenancy\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Billing\Models\BankTransferPayment;
 use App\Modules\Billing\Models\Subscription;
-use App\Modules\Billing\Models\SubscriptionPlan;
 use App\Modules\Billing\Models\SuperAdminBankSetting;
 use App\Modules\Tenancy\Models\Business;
 use Illuminate\Http\Request;

@@ -7,6 +7,7 @@ use App\Modules\Billing\Models\BankTransferPayment;
 use App\Modules\Billing\Models\Subscription;
 use App\Modules\Billing\Models\SubscriptionPlan;
 use App\Modules\Billing\Models\SuperAdminBankSetting;
+use App\Modules\Billing\Services\UsageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -14,9 +15,9 @@ use Inertia\Response;
 
 class BillingController extends Controller
 {
-    public function index(): Response
+    public function index(UsageService $usage): Response
     {
-        $businessId = auth()->user()->current_business_id;
+        $businessId = (string) auth()->user()->current_business_id;
 
         $plans = SubscriptionPlan::all();
         $subscription = Subscription::with(['plan'])->where('business_id', $businessId)->first();
@@ -31,6 +32,7 @@ class BillingController extends Controller
             'subscription' => $subscription,
             'bankSettings' => $bankSettings,
             'payments' => $payments,
+            'usage' => $usage->summary($businessId),
         ]);
     }
 
