@@ -1,0 +1,49 @@
+﻿@import "tailwindcss";
+
+@layer base {
+  :root {
+    --primary: #0F9D8C;
+    --primary-deep: #123B3A;
+    --primary-soft: #DDF7F2;
+    --ai-purple: #6C63FF;
+    --coral-accent: #FF7A59;
+    --bg-base: #F6F8FB;
+    --surface-card: #FFFFFF;
+    --border-subtle: #E7ECF2;
+    --text-primary: #172033;
+    --text-secondary: #667085;
+    --success: #16A34A;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+  }
+
+  body {
+    font-family: 'IBM Plex Sans Arabic', 'Cairo', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  [dir="ltr"] body {
+    font-family: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+}
+
+/* Custom Scrollbar for Sleek SaaS UI */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(231, 236, 242, 0.8);
+}
