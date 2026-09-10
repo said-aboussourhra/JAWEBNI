@@ -155,6 +155,17 @@ php artisan test --filter=AIConversationPipeline
 التغطية الحالية: عزل المستأجرين، الويب هوك (تحدي + توقيع + شكاوى)، محرك الذكاء الاصطناعي،
 RAG والبحث الدلالي، الوكلاء، CRM، الفوترة والصلاحيات، وحدات مساحة العمل (حجوزات، حملات، أتمتة، تحليلات).
 
+## التكامل المستمر | CI
+
+ملف workflow جاهز في `docs/ci-workflow.example.yml` — انسخه إلى `.github/workflows/ci.yml`
+(يحتاج صلاحية `workflows` في توكن GitHub):
+
+```bash
+mkdir -p .github/workflows && cp docs/ci-workflow.example.yml .github/workflows/ci.yml
+```
+
+يشغّل: تركيب Composer، الترحيلات، `php artisan test` على PHP 8.2/8.3، ثم `tsc --noEmit` و`npm run build`.
+
 ## النشر | Déploiement
 
 ```bash
