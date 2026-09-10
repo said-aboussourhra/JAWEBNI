@@ -24,3 +24,10 @@ Homestead.yaml
 Thumbs.db
 # Composer
 composer.phar
+
+# Sandbox tooling (not part of the application)
+.tools
+
+# Sandbox tooling (local run inside restricted environments)
+sandbox-tools
+composer.phar
