@@ -29,5 +29,6 @@ composer.phar
 .tools
 
 # Sandbox tooling (local run inside restricted environments)
-sandbox-tools
+sandbox-tools/node_modules
+/vendor
 composer.phar
