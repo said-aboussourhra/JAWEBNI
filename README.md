@@ -68,6 +68,18 @@ composer dev        # يرفع السيرفر + الـ queue + السجلات + 
 **حساب الدخول التجريبي بعد `db:seed`:** `said@jawebni.ma` / `password123` (سوبر أدمن)
 و `sara@jawebni.ma` / `password123` (مستخدمة عادية).
 
+### عبر Docker (بدون تثبيت PHP ولا Composer على جهازك)
+
+```bash
+git clone <repo> JAWEBNI && cd JAWEBNI
+docker compose up --build            # يبني الصورة (Composer + Vite) ويشغّل كلشي
+# افتح  http://localhost:8000  —  said@jawebni.ma / password123
+```
+
+الصورة كتبني الأصول (Vite) وكاتولّد `APP_KEY` وكاتنفّذ `migrate --seed` أوتوماتيكياً من أول تشغيل
+(الـ seed كيتدار مرة واحدة؛ كاينة علامة `storage/.seeded`). الخدمات: `app` (Nginx + PHP-FPM)،
+`worker` (queue)، `scheduler` (المواعيد).
+
 ---
 
 ## الإعدادات البيئية | Variables d'environnement
