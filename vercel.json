@@ -13,6 +13,10 @@
       "dest": "/api/index.php"
     },
     {
+      "src": "/.*\\.php$",
+      "dest": "/api/index.php"
+    },
+    {
       "handle": "filesystem"
     },
     {
@@ -37,5 +41,7 @@
     "DB_DATABASE": "/tmp/jawebni/database/database.sqlite",
     "AI_PROVIDER": "openai",
     "VIEW_COMPILED_PATH": "/tmp/views"
-  }
+  },
+  "framework": null,
+  "outputDirectory": "public"
 }
