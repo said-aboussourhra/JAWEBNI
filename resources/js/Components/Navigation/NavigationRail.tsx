@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import {
   Activity,
@@ -15,6 +15,8 @@ import {
   Globe,
   Bot,
   Zap,
+  CalendarDays,
+  Megaphone,
 } from 'lucide-react';
 import { useLanguage, Locale } from '@/lib/i18n';
 
@@ -64,6 +66,18 @@ export const NavigationRail: React.FC<NavRailProps> = ({
       href: '/customers',
       label: t('nav.customers', 'Customers'),
       icon: Users,
+    },
+    {
+      id: 'booking',
+      href: '/booking',
+      label: t('nav.booking', 'Booking'),
+      icon: CalendarDays,
+    },
+    {
+      id: 'campaigns',
+      href: '/campaigns',
+      label: t('nav.campaigns', 'Campaigns'),
+      icon: Megaphone,
     },
     {
       id: 'automation',

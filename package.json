@@ -4,7 +4,11 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite --host 0.0.0.0 --port 5173",
+        "dev:mock": "node server.js",
+        "preview": "vite preview --host 0.0.0.0 --port 4173",
+        "serve": "node server.js",
+        "setup": "npm install && npm run build && echo '✅ Frontend built successfully! For full Laravel backend, install PHP 8.2+ and run: composer install && php artisan migrate --seed'"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.3.3",
@@ -20,6 +24,9 @@
     },
     "dependencies": {
         "@inertiajs/react": "^3.7.0",
+        "@php-wasm/node": "^3.1.53",
+        "@php-wasm/node-8-2": "^3.1.53",
+        "@php-wasm/universal": "^3.1.53",
         "@radix-ui/react-avatar": "^1.2.6",
         "@radix-ui/react-dialog": "^1.1.23",
         "@radix-ui/react-dropdown-menu": "^2.1.24",
@@ -30,6 +37,7 @@
         "@vitejs/plugin-react": "^5.2.0",
         "clsx": "^2.1.1",
         "cmdk": "^1.1.1",
+        "express": "^4.22.2",
         "framer-motion": "^13.2.0",
         "lucide-react": "^1.39.0",
         "react": "^19.2.8",

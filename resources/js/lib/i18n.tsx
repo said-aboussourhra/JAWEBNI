@@ -1,4 +1,4 @@
-﻿import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 export type Locale = 'ar' | 'fr' | 'en';
 export type Direction = 'rtl' | 'ltr';
@@ -18,6 +18,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'nav.inbox': 'صندوق المحادثات (Inbox)',
     'nav.ai_studio': 'استوديو الذكاء الاصطناعي',
     'nav.customers': 'عملاء وذاكرة AI',
+    'nav.booking': 'الحجوزات والمواعيد',
+    'nav.campaigns': 'الحملات الجماعية',
     'nav.automation': 'الأتمتة ومسارات العمل',
     'nav.analytics': 'التحليلات الذكية',
     'nav.settings': 'إعدادات النظام',
@@ -37,6 +39,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'nav.inbox': 'Boîte de réception IA',
     'nav.ai_studio': 'AI Studio & Savoir',
     'nav.customers': 'Clients & Mémoire IA',
+    'nav.booking': 'Réservations & RDV',
+    'nav.campaigns': 'Campagnes WhatsApp',
     'nav.automation': 'Automatisation & Flux',
     'nav.analytics': 'Analytique & Intelligence',
     'nav.settings': 'Paramètres Entreprise',
@@ -56,6 +60,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'nav.inbox': 'Inbox & Conversations',
     'nav.ai_studio': 'AI Studio & Knowledge',
     'nav.customers': 'Customer Intelligence',
+    'nav.booking': 'Booking & Appointments',
+    'nav.campaigns': 'Campaigns & Broadcast',
     'nav.automation': 'Automation & Workflows',
     'nav.analytics': 'Intelligence Storytelling',
     'nav.settings': 'Settings & Team',
