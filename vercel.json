@@ -3,16 +3,17 @@
   "version": 2,
   "functions": {
     "api/*.php": {
-      "runtime": "vercel-php@0.9.0"
+      "runtime": "vercel-php@0.9.0",
+      "excludeFiles": "{node_modules/**,tests/**,docs/**,sandbox-tools/**,docker/**,database/*.sqlite,storage/logs/*,storage/framework/*/*,.env,.git/**,.github/**}"
     }
   },
   "routes": [
     {
-      "handle": "filesystem"
+      "src": "/api/(.*)",
+      "dest": "/api/index.php"
     },
     {
-      "src": "/build/(.*)",
-      "dest": "/build/$1"
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
@@ -34,8 +35,7 @@
     "FILESYSTEM_DISK": "local",
     "DB_CONNECTION": "sqlite",
     "DB_DATABASE": "/tmp/jawebni/database/database.sqlite",
-    "AI_PROVIDER": "openai"
-  },
-  "buildCommand": "npm install && npm run build",
-  "installCommand": "npm install"
+    "AI_PROVIDER": "openai",
+    "VIEW_COMPILED_PATH": "/tmp/views"
+  }
 }

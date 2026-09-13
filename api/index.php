@@ -30,8 +30,10 @@ $root = dirname(__DIR__);
 $tmp = sys_get_temp_dir() . '/jawebni';
 
 $writableDirectories = [
+    $tmp . '/storage/app/public',
     $tmp . '/storage/framework/cache/data',
     $tmp . '/storage/framework/sessions',
+    $tmp . '/storage/framework/testing',
     $tmp . '/storage/framework/views',
     $tmp . '/storage/logs',
     $tmp . '/cache',
