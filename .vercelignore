@@ -1,0 +1,12 @@
+/node_modules
+/sandbox-tools
+/tests
+/storage/logs/*
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/database/*.sqlite
+/.env
+/.git
+/docker
+/docs

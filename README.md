@@ -192,6 +192,32 @@ docker compose up -d --build
 docker compose exec app php artisan migrate --seed --force
 ```
 
+### النشر على Vercel (رابط دائم، بلا سيرفر)
+
+المشروع فيه إعداد جاهز لـ Vercel يستعمل وقت تشغيل PHP (`vercel-php`):
+
+* `api/index.php` — نقطة الدخول: كيحوّل كل المسارات القابلة للكتابة (storage, caches, SQLite)
+  إلى `/tmp` (نظام الملفات على Vercel للقراءة فقط)، وإلا ما تلاقات قاعدة بيانات خارجية
+  كيصاوب SQLite مؤقتة وكينفّذ الترحيلات والبذر تلقائياً من أول طلب.
+* `vercel.json` — وقت التشغيل + المسارات + متغيرات البيئة (جلسات بالكوكيز لأن `/tmp` غير دائم).
+
+```bash
+# من جهازك
+npx vercel --prod          # أول مرة: سجّل الدخول واختار المشروع
+```
+
+أو من لوحة تحكم Vercel: **Add New → Project → Import** من GitHub (الإعداد كيتم أوتوماتيكياً).
+
+لقاعدة بيانات حقيقية (موصى به في الإنتاج) زد المتغيرات التالية في لوحة Vercel:
+
+```
+DB_CONNECTION=mysql        # أو pgsql
+DB_HOST=...   DB_PORT=3306   DB_DATABASE=...   DB_USERNAME=...   DB_PASSWORD=...
+```
+
+بدونها، الموقع كيخدم فوراً بقاعدة SQLite مؤقتة مكلاتة ببيانات العرض
+(`said@jawebni.ma` / `password123`).
+
 لا تنسَ تشغيل العاملين في الإنتاج:
 
 ```bash
