@@ -21,6 +21,9 @@ class ClassLoader
 
     private bool $classMapAuthoritative = false;
 
+    /** @var array<string, self> vendor directory => loader (Composer parity) */
+    private static array $registeredLoaders = [];
+
     private ?string $apcuPrefix = null;
 
     /** @var list<string> */
@@ -136,11 +139,22 @@ class ClassLoader
     public function register(bool $prepend = false): void
     {
         spl_autoload_register([$this, 'loadClass'], true, $prepend);
+
+        // Laravel infers its base path from the registered loaders
+        // (Illuminate\Foundation\Application::inferBasePath()).
+        self::$registeredLoaders[dirname(__DIR__)] = $this;
     }
 
     public function unregister(): void
     {
         spl_autoload_unregister([$this, 'loadClass']);
+        unset(self::$registeredLoaders[dirname(__DIR__)]);
+    }
+
+    /** @return array<string, self> */
+    public static function getRegisteredLoaders(): array
+    {
+        return self::$registeredLoaders;
     }
 
     public function loadClass(string $class): bool|string|null

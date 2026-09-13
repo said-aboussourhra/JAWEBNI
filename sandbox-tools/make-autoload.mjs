@@ -32,7 +32,9 @@ function* walk(dir) {
   for (const entry of entries) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      if (['tests', 'test', 'Tests', 'Test', 'docs', 'doc'].includes(entry.name)) continue;
+      // Composer's classmap generator does not skip anything: PHPUnit ships
+      // real classes under src/Event/Events/Test/, which a naive "skip test
+      // directories" rule would drop from the map.
       yield* walk(full);
     } else if (PHP_FILE.test(entry.name)) {
       yield full;

@@ -4,6 +4,12 @@
  *
  * php-wasm exposes no STDIN/STDOUT/STDERR constants and leaves $argv empty, so
  * the target script and its arguments are passed through the environment.
+ *
+ * A `#!/usr/bin/env php` shebang is only stripped by PHP for the primary
+ * script: when such a file is required, the shebang counts as output and the
+ * following `declare(strict_types=1)` is no longer the first statement
+ * (PHPUnit fails on exactly that). Running a shebang-free copy next to the
+ * original keeps __DIR__ based requires working.
  */
 
 if (! defined('STDOUT')) {
@@ -41,4 +47,16 @@ putenv('APP_RUNNING_IN_CONSOLE=true');
 $_SERVER['APP_RUNNING_IN_CONSOLE'] = 'true';
 $_ENV['APP_RUNNING_IN_CONSOLE'] = 'true';
 
-require $target;
+$source = (string) file_get_contents($target);
+$runner = $target;
+
+if (str_starts_with($source, '#!')) {
+    $source = (string) preg_replace('/^#![^\n]*\r?\n/', '', $source, 1);
+    $runner = $target . '.jawebni-run.php';
+    file_put_contents($runner, $source);
+    register_shutdown_function(static function () use ($runner): void {
+        @unlink($runner);
+    });
+}
+
+require $runner;
