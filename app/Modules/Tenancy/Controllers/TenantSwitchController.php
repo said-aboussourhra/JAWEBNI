@@ -3,7 +3,6 @@
 namespace App\Modules\Tenancy\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\Tenancy\Models\Business;
 use Illuminate\Http\Request;
 
 class TenantSwitchController extends Controller

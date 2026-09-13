@@ -12,6 +12,8 @@ class AITestRun extends Model
 {
     use HasUuids, BelongsToTenant;
 
+    protected $table = 'ai_test_runs';
+
     protected $fillable = [
         'business_id',
         'user_id',
