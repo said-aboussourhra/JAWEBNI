@@ -29,7 +29,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         pdo_sqlite \
         mbstring \
         zip \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -f /etc/nginx/sites-enabled/default
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
@@ -56,6 +57,8 @@ RUN mkdir -p \
     storage/framework/views \
     storage/logs \
     bootstrap/cache \
+    && rm -f bootstrap/cache/packages.php bootstrap/cache/services.php \
+    && php artisan package:discover --ansi \
     && chown -R www-data:www-data storage bootstrap/cache
 
 COPY docker/nginx-vercel.conf /etc/nginx/templates/default.conf.template
