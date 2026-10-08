@@ -58,13 +58,6 @@ RUN mkdir -p \
     storage/logs \
     bootstrap/cache \
     && rm -f bootstrap/cache/packages.php bootstrap/cache/services.php \
-    && APP_ENV=production \
-       APP_KEY=base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= \
-       CACHE_STORE=array \
-       SESSION_DRIVER=array \
-       DB_CONNECTION=sqlite \
-       DB_DATABASE=:memory: \
-       php artisan package:discover --ansi \
     && chown -R www-data:www-data storage bootstrap/cache
 
 COPY docker/nginx-vercel.conf /etc/nginx/templates/default.conf.template
