@@ -48,7 +48,7 @@ COPY . .
 
 COPY --from=assets /app/public/build ./public/build
 
-RUN composer dump-autoload --optimize --no-dev
+RUN composer dump-autoload --optimize --no-dev --no-scripts
 
 RUN mkdir -p \
     storage/framework/cache/data \
