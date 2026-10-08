@@ -1,6 +1,6 @@
 ﻿import React, { useState } from 'react';
 import { AppShell } from '@/Layouts/AppShell';
-import { router, useForm } from '@inertiajs/react';
+import { router, useForm, usePoll } from '@inertiajs/react';
 import {
   MessageSquare,
   Search,
@@ -68,6 +68,13 @@ export default function Inbox({
   const { t, direction } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterTab, setFilterTab] = useState<'all' | 'ai' | 'human' | 'urgent'>('all');
+
+  // Live refresh: new WhatsApp messages appear without reloading the page.
+  usePoll(
+    5000,
+    { only: ['conversations', 'messages', 'activeConversation'] },
+    { keepAlive: true, autoStart: true }
+  );
 
   const { data, setData, post, reset, processing } = useForm({
     conversation_id: activeConversation?.id || '',

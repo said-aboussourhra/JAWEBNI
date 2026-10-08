@@ -3,9 +3,9 @@
 namespace App\Modules\WhatsAppBot\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\CRM\Models\Customer;
 use App\Modules\WhatsAppBot\Models\Conversation;
 use App\Modules\WhatsAppBot\Models\Message;
+use App\Modules\WhatsAppBot\Services\WhatsAppDeliveryService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -88,7 +88,7 @@ class InboxController extends Controller
         ]);
     }
 
-    public function sendMessage(Request $request)
+    public function sendMessage(Request $request, WhatsAppDeliveryService $delivery)
     {
         $validated = $request->validate([
             'conversation_id' => ['required', 'uuid', 'exists:conversations,id'],
@@ -97,6 +97,8 @@ class InboxController extends Controller
 
         $conversation = Conversation::findOrFail($validated['conversation_id']);
 
+        $result = $delivery->sendText($conversation, $validated['body']);
+
         $message = Message::create([
             'business_id' => auth()->user()->current_business_id,
             'conversation_id' => $conversation->id,
@@ -104,7 +106,7 @@ class InboxController extends Controller
             'sender_type' => 'human',
             'sent_by_user_id' => auth()->id(),
             'body' => $validated['body'],
-            'status' => 'sent',
+            'status' => $result['success'] ? 'sent' : 'queued',
         ]);
 
         $conversation->update([
@@ -113,7 +115,12 @@ class InboxController extends Controller
             'last_message_at' => now(),
         ]);
 
-        return back()->with('success', 'Message sent.');
+        return back()->with(
+            $result['success'] ? 'success' : 'error',
+            $result['success']
+                ? 'تم إرسال الرسالة إلى الزبون عبر واتساب.'
+                : 'تم حفظ الرسالة لكن لم يتم إرسالها (تحقق من رقم واتساب المتصل في الإعدادات).'
+        );
     }
 
     public function toggleAI(Request $request)

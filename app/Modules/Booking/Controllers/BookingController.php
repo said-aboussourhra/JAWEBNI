@@ -15,7 +15,7 @@ class BookingController extends Controller
 {
     public function index(): Response
     {
-        $businessId = auth()->user()->current_business_id;
+        $businessId = (string) auth()->user()->current_business_id;
 
         $bookings = Booking::with(['customer', 'service', 'staffMember'])
             ->where('business_id', $businessId)
@@ -24,25 +24,39 @@ class BookingController extends Controller
             ->map(function ($b) {
                 return [
                     'id' => $b->id,
-                    'customer_name' => $b->customer ? $b->customer->name : 'زبون واتساب',
-                    'customer_phone' => $b->customer ? $b->customer->phone : '',
-                    'service_name' => $b->service ? $b->service->name : 'جلسة قياس قفطان',
-                    'service_price' => $b->service ? $b->service->price . ' MAD' : 'مجاني',
-                    'staff_name' => $b->staffMember ? $b->staffMember->name : 'سارة (Styliste)',
-                    'datetime' => $b->booking_datetime->format('Y-m-d H:i'),
+                    'customer_name' => $b->customer?->name ?: 'زبون واتساب',
+                    'customer_phone' => $b->customer?->phone ?: '',
+                    'service_name' => $b->service?->name ?: 'جلسة قياس قفطان',
+                    'service_price' => $b->service ? number_format((float) $b->service->price, 2).' MAD' : 'مجاني',
+                    'staff_name' => $b->staffMember?->name ?: 'فريق المحل',
+                    'datetime' => $b->booking_datetime?->format('Y-m-d H:i'),
+                    'human_date' => $b->booking_datetime?->translatedFormat('l d F Y • H:i'),
                     'status' => $b->status,
                     'booked_via' => $b->booked_via,
-                    'reminder_sent' => $b->reminder_sent,
+                    'reminder_sent' => (bool) $b->reminder_sent,
+                    'notes' => $b->notes,
                 ];
             });
 
-        $services = Service::where('business_id', $businessId)->get();
-        $staff = StaffMember::where('business_id', $businessId)->get();
-
         return Inertia::render('Booking/Index', [
             'bookings' => $bookings,
-            'services' => $services,
-            'staff' => $staff,
+            'services' => Service::where('business_id', $businessId)->get(),
+            'staff' => StaffMember::where('business_id', $businessId)->get(),
+            'customers' => Customer::where('business_id', $businessId)
+                ->orderBy('name')
+                ->limit(200)
+                ->get(['id', 'name', 'phone']),
+            'stats' => [
+                'upcoming' => Booking::where('business_id', $businessId)
+                    ->where('status', 'confirmed')
+                    ->where('booking_datetime', '>=', now())
+                    ->count(),
+                'today' => Booking::where('business_id', $businessId)
+                    ->whereDate('booking_datetime', today())
+                    ->count(),
+                'completed' => Booking::where('business_id', $businessId)->where('status', 'completed')->count(),
+                'cancelled' => Booking::where('business_id', $businessId)->where('status', 'cancelled')->count(),
+            ],
         ]);
     }
 
@@ -57,7 +71,7 @@ class BookingController extends Controller
             'notes' => ['nullable', 'string'],
         ]);
 
-        $businessId = auth()->user()->current_business_id;
+        $businessId = (string) auth()->user()->current_business_id;
 
         $customer = Customer::firstOrCreate(
             ['business_id' => $businessId, 'phone' => $validated['customer_phone']],
@@ -70,11 +84,76 @@ class BookingController extends Controller
             'service_id' => $validated['service_id'] ?? null,
             'staff_member_id' => $validated['staff_member_id'] ?? null,
             'booking_datetime' => $validated['booking_datetime'],
-            'booked_via' => 'manual',
+            'booked_via' => $validated['booked_via'] ?? 'manual',
             'notes' => $validated['notes'] ?? null,
             'status' => 'confirmed',
         ]);
 
-        return back()->with('success', 'Booking confirmed.');
+        return back()->with('success', 'تم تأكيد الموعد وإضافته لجدول المحل.');
+    }
+
+    public function update(Request $request, string $id)
+    {
+        $validated = $request->validate([
+            'status' => ['required', 'string', 'in:confirmed,completed,cancelled'],
+            'booking_datetime' => ['nullable', 'date'],
+            'notes' => ['nullable', 'string'],
+        ]);
+
+        $booking = Booking::findOrFail($id);
+        $booking->update(array_filter($validated, fn ($value) => $value !== null));
+
+        return back()->with('success', 'تم تحديث حالة الموعد.');
+    }
+
+    public function destroy(string $id)
+    {
+        Booking::findOrFail($id)->delete();
+
+        return back()->with('success', 'تم حذف الموعد.');
+    }
+
+    public function storeService(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'price' => ['nullable', 'numeric', 'min:0'],
+            'duration_minutes' => ['nullable', 'integer', 'min:5', 'max:600'],
+            'color' => ['nullable', 'string', 'max:20'],
+        ]);
+
+        Service::create([
+            'business_id' => (string) auth()->user()->current_business_id,
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
+            'price' => $validated['price'] ?? 0,
+            'duration_minutes' => $validated['duration_minutes'] ?? 30,
+            'color' => $validated['color'] ?? '#0F9D8C',
+            'is_active' => true,
+        ]);
+
+        return back()->with('success', 'تمت إضافة الخدمة بنجاح.');
+    }
+
+    public function storeStaff(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['nullable', 'string'],
+            'email' => ['nullable', 'email'],
+            'role_title' => ['nullable', 'string'],
+        ]);
+
+        StaffMember::create([
+            'business_id' => (string) auth()->user()->current_business_id,
+            'name' => $validated['name'],
+            'phone' => $validated['phone'] ?? null,
+            'email' => $validated['email'] ?? null,
+            'role_title' => $validated['role_title'] ?? 'عضو الفريق',
+            'is_active' => true,
+        ]);
+
+        return back()->with('success', 'تمت إضافة عضو الفريق بنجاح.');
     }
 }

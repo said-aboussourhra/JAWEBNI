@@ -61,6 +61,69 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({ activeHub, activeSec
             { id: 'closed', label: 'Resolved & Archived', icon: CheckSquare, href: '/inbox?filter=closed' },
           ],
         };
+      case 'agents':
+        return {
+          title: t('nav.agents', 'Agents Control Room'),
+          badge: '5 Agents',
+          items: [
+            { id: 'overview', label: 'All Agents', icon: Bot, href: '/agents' },
+            { id: 'router', label: 'Intent Router Simulator', icon: Cpu, href: '/agents#router' },
+            { id: 'executions', label: 'Execution Logs', icon: FlaskConical, href: '/agents#executions' },
+          ],
+        };
+      case 'customers':
+        return {
+          title: t('nav.customers', 'Customer Intelligence'),
+          badge: 'AI Memory',
+          items: [
+            { id: 'overview', label: 'All Customers', icon: Users2, href: '/customers' },
+            { id: 'segments', label: 'Segments & Tags', icon: Filter, href: '/customers#segments' },
+          ],
+        };
+      case 'booking':
+        return {
+          title: t('nav.booking', 'Booking Workspace'),
+          badge: 'Calendar',
+          items: [
+            { id: 'overview', label: 'All Appointments', icon: Layers, href: '/booking' },
+            { id: 'services', label: 'Services & Staff', icon: Users2, href: '/booking#services' },
+          ],
+        };
+      case 'campaigns':
+        return {
+          title: t('nav.campaigns', 'Campaign Mission Control'),
+          badge: 'WhatsApp',
+          items: [
+            { id: 'overview', label: 'All Campaigns', icon: TrendingUp, href: '/campaigns' },
+            { id: 'templates', label: 'Meta Templates', icon: BookOpen, href: '/campaigns#templates' },
+            { id: 'segments', label: 'Audience Segments', icon: Users2, href: '/campaigns#segments' },
+          ],
+        };
+      case 'automation':
+        return {
+          title: t('nav.automation', 'Automation Workflows'),
+          badge: 'Live',
+          items: [
+            { id: 'overview', label: 'All Workflows', icon: Layers, href: '/automation' },
+          ],
+        };
+      case 'analytics':
+        return {
+          title: t('nav.analytics', 'Intelligence Storytelling'),
+          badge: '14 days',
+          items: [
+            { id: 'overview', label: 'Overview & KPIs', icon: TrendingUp, href: '/analytics' },
+          ],
+        };
+      case 'settings':
+        return {
+          title: t('nav.settings', 'Settings & Billing'),
+          badge: 'Plans',
+          items: [
+            { id: 'overview', label: 'Subscription & Plans', icon: Layers, href: '/settings' },
+            { id: 'bank', label: 'Bank Transfer (RIB)', icon: Building2, href: '/settings#bank' },
+          ],
+        };
       case 'pulse':
       default:
         return {

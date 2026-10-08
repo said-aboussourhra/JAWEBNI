@@ -48,6 +48,16 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
+                'status' => fn () => $request->session()->get('status'),
+            ],
+            'simulation' => fn () => $request->session()->get('simulation'),
+            'inbox' => [
+                'waiting_human' => fn () => $user && $user->current_business_id
+                    ? \App\Modules\WhatsAppBot\Models\Conversation::withoutTenantScope()
+                        ->where('business_id', $user->current_business_id)
+                        ->where('status', 'waiting_human')
+                        ->count()
+                    : 0,
             ],
         ];
     }

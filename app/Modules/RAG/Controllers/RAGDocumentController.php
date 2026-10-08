@@ -3,38 +3,27 @@
 namespace App\Modules\RAG\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\RAG\Models\KnowledgeChunk;
+use App\Jobs\IndexKnowledgeDocument;
 use App\Modules\RAG\Models\KnowledgeDocument;
-use App\Modules\RAG\Services\DocumentExtractorService;
-use App\Modules\RAG\Services\TextChunkerService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class RAGDocumentController extends Controller
 {
-    public function upload(
-        Request $request,
-        DocumentExtractorService $extractor,
-        TextChunkerService $chunker
-    ) {
+    public function upload(Request $request)
+    {
         $request->validate([
-            'document' => ['required', 'file', 'mimes:pdf,docx,xlsx,csv,txt', 'max:20480'],
+            'document' => ['required', 'file', 'mimes:pdf,docx,xlsx,csv,txt,md', 'max:20480'],
             'title' => ['nullable', 'string', 'max:255'],
         ]);
 
         $file = $request->file('document');
-        $businessId = auth()->user()->current_business_id;
+        $businessId = (string) auth()->user()->current_business_id;
 
-        $fileName = time() . '_' . $file->getClientOriginalName();
-        $filePath = $file->storeAs('knowledge_docs/' . $businessId, $fileName);
+        $fileName = time().'_'.Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)).'.'.$file->getClientOriginalExtension();
+        $filePath = $file->storeAs('knowledge_docs/'.$businessId, $fileName);
 
-        // 1. Extract raw text
-        $rawText = $extractor->extractText($file);
-
-        // 2. Split text into chunks
-        $chunks = $chunker->chunkText($rawText, 120, 20);
-
-        // 3. Create KnowledgeDocument
         $doc = KnowledgeDocument::create([
             'id' => (string) Str::uuid(),
             'business_id' => $businessId,
@@ -43,37 +32,27 @@ class RAGDocumentController extends Controller
             'file_path' => $filePath,
             'mime_type' => $file->getClientMimeType(),
             'file_size_bytes' => $file->getSize(),
-            'pages_count' => max(1, count($chunks)),
-            'chunks_count' => count($chunks),
-            'extraction_confidence' => 96,
-            'status' => 'indexed',
+            'pages_count' => 1,
+            'chunks_count' => 0,
+            'extraction_confidence' => 0,
+            'status' => 'processing',
         ]);
 
-        // 4. Create KnowledgeChunks
-        foreach ($chunks as $index => $chunkText) {
-            KnowledgeChunk::create([
-                'id' => (string) Str::uuid(),
-                'business_id' => $businessId,
-                'document_id' => $doc->id,
-                'chunk_index' => $index,
-                'content' => $chunkText,
-                'token_count' => str_word_count($chunkText),
-                'embedding' => array_fill(0, 1536, 0.012),
-                'metadata' => [
-                    'source_file' => $file->getClientOriginalName(),
-                    'chunk_num' => $index + 1,
-                ],
-            ]);
-        }
+        IndexKnowledgeDocument::dispatch($businessId, (string) $doc->id);
 
-        return back()->with('success', 'Document processed, chunked, and indexed successfully.');
+        return back()->with('success', 'تم رفع المستند، وسيتم تقسيمه وأرشفته في قاعدة المعرفة تلقائياً.');
     }
 
     public function destroy(string $id)
     {
         $doc = KnowledgeDocument::findOrFail($id);
+
+        if ($doc->file_path) {
+            Storage::disk(config('filesystems.default', 'local'))->delete($doc->file_path);
+        }
+
         $doc->delete();
 
-        return back()->with('success', 'Document and associated vector chunks removed.');
+        return back()->with('success', 'تم حذف المستند وكل المقاطع المرتبطة به.');
     }
 }

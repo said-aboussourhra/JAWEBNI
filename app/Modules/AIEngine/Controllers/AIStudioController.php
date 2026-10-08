@@ -144,8 +144,13 @@ class AIStudioController extends Controller
         return back()->with('success', 'AI personality settings updated.');
     }
 
-    public function runTestSimulation(Request $request, AgentRouterService $routerService)
-    {
+    public function runTestSimulation(
+        Request $request,
+        AgentRouterService $routerService,
+        RAGRetrievalService $retrieval,
+        PromptBuilderService $promptBuilder,
+        AIProviderFactory $factory
+    ) {
         $validated = $request->validate([
             'prompt' => ['required', 'string'],
         ]);
@@ -175,6 +180,33 @@ class AIStudioController extends Controller
             $source = 'معلومات النشاط التجاري';
             $action = 'الرد الترحيبي وتقديم المساعدة';
             $response = 'مرحباً بك في جاوبني! كيف نقدر نعاونك اليوم بخصوص منتجاتنا؟';
+        }
+
+        // When a real provider is configured, run the actual generation pipeline
+        // (RAG retrieval + system prompt + model) instead of the canned demo.
+        $provider = $factory->resolve($business?->getSetting('ai_provider'));
+
+        if (method_exists($provider, 'hasCredentials') && $provider->hasCredentials()) {
+            $knowledge = $retrieval->retrieveRelevantChunks((string) $business->id, $prompt);
+            $personality = AIPersonality::where('business_id', $business->id)->first();
+            $agent = AIAgent::where('business_id', $business->id)
+                ->where('type', $routing['agent_type'])
+                ->first();
+
+            $systemPrompt = $promptBuilder->buildSystemPrompt($business, $personality, $agent, $knowledge, []);
+
+            $result = $provider->generateResponse([
+                ['role' => 'system', 'content' => $systemPrompt],
+                ['role' => 'user', 'content' => $prompt],
+            ]);
+
+            if (! empty($result['text'])) {
+                $response = $result['text'];
+                $source = $knowledge !== []
+                    ? 'RAG: '.implode('، ', array_slice(array_unique(array_column($knowledge, 'document_title')), 0, 2))
+                    : $source;
+                $action = $action.' • مولّد فعلياً عبر '.($result['provider'] ?? 'AI').' ('.($result['latency_ms'] ?? 0).'ms)';
+            }
         }
 
         $testRun = AITestRun::create([

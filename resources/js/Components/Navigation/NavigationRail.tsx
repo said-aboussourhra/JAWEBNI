@@ -15,6 +15,9 @@ import {
   Globe,
   Bot,
   Zap,
+  Calendar,
+  Megaphone,
+  Users2,
 } from 'lucide-react';
 import { useLanguage, Locale } from '@/lib/i18n';
 
@@ -31,7 +34,8 @@ export const NavigationRail: React.FC<NavRailProps> = ({
   onToggleCopilot,
   copilotOpen,
 }) => {
-  const { auth } = usePage<{ auth: any }>().props;
+  const { auth, inbox } = usePage<{ auth: any; inbox?: { waiting_human?: number } }>().props;
+  const waitingHuman = inbox?.waiting_human ?? 0;
   const { locale, direction, setLocale, t } = useLanguage();
   const [langMenuOpen, setLangMenuOpen] = useState(false);
 
@@ -49,7 +53,7 @@ export const NavigationRail: React.FC<NavRailProps> = ({
       href: '/inbox',
       label: t('nav.inbox', 'Inbox'),
       icon: MessageSquare,
-      badge: '3',
+      badge: waitingHuman > 0 ? String(waitingHuman) : undefined,
       badgeColor: 'bg-[#FF7A59]',
     },
     {
@@ -60,10 +64,28 @@ export const NavigationRail: React.FC<NavRailProps> = ({
       highlight: true,
     },
     {
+      id: 'agents',
+      href: '/agents',
+      label: t('nav.agents', 'Agents'),
+      icon: Bot,
+    },
+    {
       id: 'customers',
       href: '/customers',
       label: t('nav.customers', 'Customers'),
       icon: Users,
+    },
+    {
+      id: 'booking',
+      href: '/booking',
+      label: t('nav.booking', 'Bookings'),
+      icon: Calendar,
+    },
+    {
+      id: 'campaigns',
+      href: '/campaigns',
+      label: t('nav.campaigns', 'Campaigns'),
+      icon: Megaphone,
     },
     {
       id: 'automation',

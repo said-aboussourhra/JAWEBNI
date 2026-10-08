@@ -4,7 +4,6 @@ namespace App\Modules\Billing\Models;
 
 use App\Core\Traits\BelongsToTenant;
 use App\Models\User;
-use App\Modules\Tenancy\Models\Business;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
