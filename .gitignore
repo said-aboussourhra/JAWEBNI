@@ -31,3 +31,6 @@ composer.phar
 sandbox-tools/node_modules
 /vendor
 composer.phar
+
+.vercel
+.env*
