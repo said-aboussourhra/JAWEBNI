@@ -58,7 +58,13 @@ RUN mkdir -p \
     storage/logs \
     bootstrap/cache \
     && rm -f bootstrap/cache/packages.php bootstrap/cache/services.php \
-    && php artisan package:discover --ansi \
+    && APP_ENV=production \
+       APP_KEY=base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= \
+       CACHE_STORE=array \
+       SESSION_DRIVER=array \
+       DB_CONNECTION=sqlite \
+       DB_DATABASE=:memory: \
+       php artisan package:discover --ansi \
     && chown -R www-data:www-data storage bootstrap/cache
 
 COPY docker/nginx-vercel.conf /etc/nginx/templates/default.conf.template
@@ -69,7 +75,7 @@ cd /var/www/html\n\
 mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache\n\
 chown -R www-data:www-data storage bootstrap/cache\n\
 php-fpm -D\n\
-envsubst '"'"'$$PORT'"'"' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf\n\
+envsubst '"'"'$PORT'"'"' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf\n\
 exec nginx -g "daemon off;"\n' > /usr/local/bin/vercel-entrypoint.sh \
     && chmod +x /usr/local/bin/vercel-entrypoint.sh
 
